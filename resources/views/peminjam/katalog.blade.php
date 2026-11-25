@@ -106,11 +106,11 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="tanggal-pinjam" class="form-label">Tanggal mulai</label>
-                        <input id="tanggal-pinjam" type="date" name="tanggal_pinjam" class="form-control" min="{{ today()->toDateString() }}" value="{{ old('tanggal_pinjam', now()->toDateString()) }}" required>
+                        <input id="tanggal-pinjam" type="date" name="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam', now()->toDateString()) }}" required>
                     </div>
                     <div class="col-md-6">
                         <label for="tanggal-kembali" class="form-label">Rencana kembali</label>
-                        <input id="tanggal-kembali" type="date" name="tanggal_kembali_rencana" class="form-control" min="{{ today()->toDateString() }}" value="{{ old('tanggal_kembali_rencana', now()->addDay()->toDateString()) }}" required>
+                        <input id="tanggal-kembali" type="date" name="tanggal_kembali_rencana" class="form-control" value="{{ old('tanggal_kembali_rencana', now()->addDay()->toDateString()) }}" required>
                     </div>
                     <div class="col-12">
                         <label for="catatan" class="form-label">Catatan <span class="text-muted">(opsional)</span></label>

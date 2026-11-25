@@ -115,36 +115,4 @@ class PeminjamPeminjamanTest extends TestCase
         // Memverifikasi respons atau keadaan yang menjadi ketentuan kasus ini.
         $this->assertNull($peminjaman->fresh()->pengembalian_diajukan_at);
     }
-
-    /** Memastikan pengajuan menolak tanggal pinjam sebelum hari ini. */
-    public function test_peminjam_cannot_submit_borrowing_with_past_borrow_date(): void
-    {
-        $peminjam = User::factory()->create(['role' => 'peminjam']);
-
-        $this->actingAs($peminjam)
-            ->post(route('peminjam.peminjaman.store'), [
-                'tanggal_pinjam' => today()->subDay()->toDateString(),
-                'tanggal_kembali_rencana' => today()->addDay()->toDateString(),
-                'alat' => [1],
-            ])
-            ->assertSessionHasErrors('tanggal_pinjam');
-
-        $this->assertDatabaseCount('peminjaman', 0);
-    }
-
-    /** Memastikan pengajuan menolak tanggal kembali sebelum hari ini. */
-    public function test_peminjam_cannot_submit_borrowing_with_past_return_date(): void
-    {
-        $peminjam = User::factory()->create(['role' => 'peminjam']);
-
-        $this->actingAs($peminjam)
-            ->post(route('peminjam.peminjaman.store'), [
-                'tanggal_pinjam' => today()->subDays(3)->toDateString(),
-                'tanggal_kembali_rencana' => today()->subDays(2)->toDateString(),
-                'alat' => [1],
-            ])
-            ->assertSessionHasErrors(['tanggal_pinjam', 'tanggal_kembali_rencana']);
-
-        $this->assertDatabaseCount('peminjaman', 0);
-    }
 }

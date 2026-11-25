@@ -34,12 +34,9 @@ Aplikasi Laravel untuk mengelola akun, kategori dan inventaris alat, pengajuan p
    composer install
    php artisan key:generate
    php artisan migrate:fresh --seed
-   php artisan storage:link
    npm install
    npm run build
    ```
-
-   Jalankan `php artisan storage:link` setelah instalasi agar foto alat yang disimpan di `storage/app/public` dapat ditampilkan melalui `public/storage`.
 
    **Perhatian:** `migrate:fresh` menghapus semua tabel pada database yang dikonfigurasi. Untuk memperbarui database berisi data, gunakan `php artisan migrate` sebagai gantinya.
 

@@ -118,7 +118,7 @@ class PeminjamanController extends Controller
     {
         $validated = $request->validate([
             'tanggal_pinjam' => 'required|date|after_or_equal:today',
-            'tanggal_kembali_rencana' => 'required|date|after:tanggal_pinjam|after_or_equal:today',
+            'tanggal_kembali_rencana' => 'required|date|after:tanggal_pinjam',
             'catatan' => 'nullable|string|max:2000',
             'alat' => 'required|array',
             'alat.*' => 'required|integer|min:0',

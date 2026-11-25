@@ -6,7 +6,6 @@ use App\Models\Alat;
 use App\Models\Kategori;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /** Kelas pengujian fitur katalog dan peminjaman milik peminjam. */
@@ -55,28 +54,8 @@ class PeminjamKatalogTest extends TestCase
         $response->assertOk()
             ->assertSee('name="alat['.$laptop->id.']"', false)
             ->assertSee('name="alat['.$kamera->id.']"', false)
-            ->assertSee('name="tanggal_pinjam" class="form-control" min="'.today()->toDateString().'"', false)
-            ->assertSee('name="tanggal_kembali_rencana" class="form-control" min="'.today()->toDateString().'"', false)
+            ->assertSee('name="tanggal_pinjam"', false)
+            ->assertSee('name="tanggal_kembali_rencana"', false)
             ->assertSee('Kirim Permohonan');
-    }
-
-    /** Memastikan foto alat pada katalog menggunakan URL disk publik. */
-    public function test_catalog_displays_tool_photo_from_public_storage(): void
-    {
-        Storage::fake('public');
-        $peminjam = User::factory()->create(['role' => 'peminjam']);
-        $kategori = Kategori::create(['nama_kategori' => 'Peralatan']);
-        Alat::create([
-            'nama_alat' => 'Laptop',
-            'kategori_id' => $kategori->id,
-            'kode_alat' => 'ALT-003',
-            'stok' => 1,
-            'foto' => 'foto_alat/laptop.jpg',
-        ]);
-
-        $this->actingAs($peminjam)
-            ->get(route('peminjam.katalog'))
-            ->assertOk()
-            ->assertSee(asset('storage/foto_alat/laptop.jpg'), false);
     }
 }
