@@ -27,8 +27,8 @@ class RoleMiddlewareTest extends TestCase
         $response->assertOk();
     }
 
-    /** Memastikan petugas dialihkan dari halaman admin ke dasbornya. */
-    public function test_petugas_is_redirected_to_own_dashboard_from_admin_page(): void
+    /** Memastikan petugas menerima 403 saat membuka halaman admin. */
+    public function test_petugas_cannot_access_admin_page(): void
     {
         // Menyiapkan pengguna, data, atau keadaan awal kasus pengujian.
         $user = User::factory()->create([
@@ -40,7 +40,27 @@ class RoleMiddlewareTest extends TestCase
         $response = $this->actingAs($user)->get('/admin/peminjaman');
 
         // Memverifikasi respons atau keadaan yang menjadi ketentuan kasus ini.
-        $response->assertRedirect('/petugas/dashboard');
-        $response->assertSessionHas('error');
+        $response->assertForbidden();
+        $this->get('/admin/users')->assertForbidden();
+    }
+
+    public function test_borrower_cannot_access_admin_users(): void
+    {
+        $user = User::factory()->create(['role' => 'peminjam']);
+
+        $this->actingAs($user)->get('/admin/users')->assertForbidden();
+    }
+
+    public function test_guest_is_redirected_to_login_for_role_protected_pages(): void
+    {
+        $this->get('/admin/users')->assertRedirect(route('login'));
+    }
+
+    public function test_admin_cannot_access_staff_or_borrower_pages(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($admin)->get('/petugas/dashboard')->assertForbidden();
+        $this->get('/peminjam/dashboard')->assertForbidden();
     }
 }

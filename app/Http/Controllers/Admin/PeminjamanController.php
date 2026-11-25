@@ -95,6 +95,11 @@ class PeminjamanController extends Controller
             }
 
             $peminjaman->update(['pengembalian_diajukan_at' => now()]);
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Ajukan Pengembalian',
+                'deskripsi' => 'Mengajukan pengembalian untuk peminjaman ID: '.$peminjaman->id,
+            ]);
 
             return true;
         });
@@ -155,6 +160,12 @@ class PeminjamanController extends Controller
                     'kondisi_pinjam' => 'Baik',
                 ]);
             }
+
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Ajukan Peminjaman',
+                'deskripsi' => 'Mengajukan peminjaman ID: '.$peminjaman->id,
+            ]);
         });
 
         return redirect()->route('peminjam.peminjaman')->with('success', 'Peminjaman berhasil diajukan! Menunggu persetujuan petugas.');
@@ -190,6 +201,7 @@ class PeminjamanController extends Controller
 
             $peminjaman->update([
                 'status' => today()->gt($peminjaman->tanggal_kembali_rencana) ? 'Terlambat' : 'Dipinjam',
+                'petugas_id' => auth()->id(),
             ]);
         });
 

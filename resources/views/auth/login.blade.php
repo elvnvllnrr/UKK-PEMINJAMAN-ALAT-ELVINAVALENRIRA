@@ -101,6 +101,12 @@
             </div>
         @endif
 
+        @if(session('status'))
+            <div class="alert alert-info" role="status">
+                {{ session('status') }}
+            </div>
+        @endif
+
 {{-- Tampilkan ringkasan kesalahan setelah validasi formulir gagal. --}}
         @if($errors->any())
             <div class="alert alert-danger">

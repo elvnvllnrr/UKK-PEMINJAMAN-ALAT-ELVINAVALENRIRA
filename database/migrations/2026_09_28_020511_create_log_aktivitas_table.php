@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('log_aktivitas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('aktivitas'); // Contoh: 'Login', 'Tambah Alat', dll
             $table->text('deskripsi')->nullable();
             $table->timestamps();

@@ -106,6 +106,10 @@ class DataAlatController extends Controller
     /** Menghapus data dan berkas foto alat. */
     public function destroy(Alat $alat)
     {
+        if ($alat->detailPeminjaman()->exists()) {
+            return back()->with('error', 'Alat tidak dapat dihapus karena sudah tercatat dalam transaksi.');
+        }
+
         if ($alat->foto) {
             Storage::disk('public')->delete($alat->foto);
         }

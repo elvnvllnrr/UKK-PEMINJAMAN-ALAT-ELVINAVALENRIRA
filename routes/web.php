@@ -3,12 +3,15 @@
 use App\Http\Controllers\Admin\DataAlatController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\LoginLogoutController;
+use App\Http\Controllers\Admin\LogAktivitasController;
 use App\Http\Controllers\Admin\PeminjamanController;
 use App\Http\Controllers\Admin\PengembalianController;
 use App\Http\Controllers\Admin\UserController;
-use App\Models\Alat;
-use App\Models\Peminjaman;
+use App\Http\Controllers\Auth\Petugas\CetakLaporanController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Models\Alat;
+use App\Models\Pengembalian;
+use App\Models\Peminjaman;
 use Illuminate\Support\Facades\Route;
 
 // Login & Logout
@@ -25,7 +28,7 @@ Route::middleware('guest')->group(function () {
 // Menampilkan halaman landing untuk pengunjung.
 Route::get('/', function () {
     return view('landing');
-});
+})->name('dashboard');
 
 // ==================== ADMIN ROUTES ====================
 // Membatasi seluruh rute pengelolaan pada pengguna admin.
@@ -66,6 +69,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('alat', DataAlatController::class);
     Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'show']);
     Route::resource('pengembalian', PengembalianController::class)->except(['create', 'store']);
+    Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas.index');
 
 });
 
@@ -80,6 +84,8 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
 
         $stats = [
             'total_alat' => Alat::count(),
+            'total_peminjaman' => Peminjaman::count(),
+            'total_pengembalian' => Pengembalian::count(),
             'peminjaman_aktif' => Peminjaman::whereIn('status', ['Dipinjam', 'Terlambat'])->count(),
             'menunggu_persetujuan' => Peminjaman::where('status', 'Menunggu Persetujuan')->count(),
             'terlambat' => Peminjaman::where('status', 'Terlambat')->count(),
@@ -113,6 +119,7 @@ Route::middleware(['auth', 'role:petugas'])->prefix('petugas')->name('petugas.')
     Route::get('/pengembalian/create/{peminjaman_id}', [PengembalianController::class, 'create'])->name('pengembalian.create');
     Route::post('/pengembalian', [PengembalianController::class, 'store'])->name('pengembalian.store');
     Route::resource('pengembalian', PengembalianController::class)->only(['index', 'show']);
+    Route::get('/laporan/pengembalian', [CetakLaporanController::class, 'index'])->name('laporan.pengembalian');
 });
 
 // ==================== PEMINJAM ROUTES ====================
@@ -153,11 +160,4 @@ Route::middleware(['auth', 'role:peminjam'])->prefix('peminjam')->name('peminjam
     Route::post('/peminjaman/{peminjaman}/ajukan-pengembalian', [PeminjamanController::class, 'ajukanPengembalian'])->name('peminjaman.ajukan-pengembalian');
 });
 
-
-
-
-
-
-
-
-
+require __DIR__.'/auth.php';

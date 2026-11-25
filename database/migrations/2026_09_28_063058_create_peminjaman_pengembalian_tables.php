@@ -12,7 +12,8 @@ return new class extends Migration
     {
         Schema::create('peminjaman', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('petugas_id')->nullable()->constrained('users')->nullOnDelete();
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali_rencana');
             $table->enum('status', ['Menunggu Persetujuan', 'Dipinjam', 'Dikembalikan', 'Ditolak', 'Terlambat'])->default('Menunggu Persetujuan');
@@ -26,14 +27,15 @@ return new class extends Migration
             $table->foreignId('alat_id')->constrained('alat')->onDelete('cascade');
             $table->integer('jumlah')->default(1);
             $table->enum('kondisi_pinjam', ['Baik', 'Rusak Ringan', 'Rusak Berat'])->default('Baik');
-            $table->enum('kondisi_kembali', ['Baik', 'Rusak Ringan', 'Rusak Berat'])->nullable();
+            $table->enum('kondisi_kembali', ['Baik', 'Rusak Ringan', 'Rusak Berat', 'Hilang'])->nullable();
             $table->timestamps();
         });
 
         Schema::create('pengembalian', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('peminjaman_id')->constrained('peminjaman')->onDelete('cascade');
-            $table->date('tanggal_kembali');
+            $table->foreignId('peminjaman_id')->unique()->constrained('peminjaman')->onDelete('cascade');
+            $table->foreignId('petugas_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->date('tanggal_dikembalikan');
             $table->enum('status', ['Tepat Waktu', 'Terlambat', 'Rusak', 'Hilang'])->default('Tepat Waktu');
             $table->decimal('denda', 12, 2)->default(0);
             $table->text('catatan')->nullable();

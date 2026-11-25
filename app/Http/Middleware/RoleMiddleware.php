@@ -16,21 +16,8 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = Auth::user()->role;
-
-        if (empty($roles) || in_array($userRole, $roles, true)) {
+        if (in_array(Auth::user()->role, $roles, true)) {
             return $next($request);
-        }
-
-        $dashboard = match ($userRole) {
-            'admin' => '/admin/dashboard',
-            'petugas' => '/petugas/dashboard',
-            'peminjam' => '/peminjam/dashboard',
-            default => null,
-        };
-
-        if ($dashboard !== null) {
-            return redirect($dashboard)->with('error', 'Anda tidak memiliki akses ke halaman tersebut. Anda dialihkan ke dashboard sesuai role akun.');
         }
 
         abort(403, 'Anda tidak memiliki akses ke halaman ini.');

@@ -15,6 +15,7 @@ class Peminjaman extends Model
 
     protected $fillable = [
         'user_id',
+        'petugas_id',
         'tanggal_pinjam',
         'tanggal_kembali_rencana',
         'pengembalian_diajukan_at',
@@ -30,6 +31,12 @@ class Peminjaman extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /** Menghubungkan peminjaman dengan petugas yang menyetujuinya. */
+    public function petugas()
+    {
+        return $this->belongsTo(User::class, 'petugas_id');
     }
 
     /** Mengambil seluruh rincian alat dalam peminjaman. */

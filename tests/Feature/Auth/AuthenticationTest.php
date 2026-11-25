@@ -22,6 +22,16 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /** Memastikan sesi yang habis menampilkan pesan sebelum masuk kembali. */
+    public function test_login_screen_shows_expired_session_status(): void
+    {
+        $this->withSession([
+            'status' => 'Sesi Anda sudah berakhir. Silakan masuk kembali.',
+        ])->get('/login')
+            ->assertOk()
+            ->assertSeeText('Sesi Anda sudah berakhir. Silakan masuk kembali.');
+    }
+
     /** Memastikan kredensial sah dapat masuk melalui halaman login. */
     public function test_users_can_authenticate_using_the_login_screen(): void
     {

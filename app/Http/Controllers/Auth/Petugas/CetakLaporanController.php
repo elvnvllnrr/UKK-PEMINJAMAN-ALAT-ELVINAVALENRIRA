@@ -1,72 +1,70 @@
 <?php
 
-namespace App\Http\Controllers\Petugas;
+namespace App\Http\Controllers\Auth\Petugas;
 
 use App\Http\Controllers\Controller;
+use App\Models\Peminjaman;
+use App\Models\Pengembalian;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\LogAktivitas;
+use Illuminate\Validation\ValidationException;
 
-/** Menangani sesi masuk dan keluar petugas. */
-class LoginLogoutController extends Controller
+/** Menampilkan dan memfilter laporan transaksi untuk dicetak. */
+class CetakLaporanController extends Controller
 {
-    /** Menampilkan halaman masuk. */
-    public function showLoginForm()
+    /** Menampilkan laporan transaksi dengan filter status dan rentang tanggal. */
+    public function index(Request $request)
     {
-        return view('auth.login');
-    }
-
-    /** Memproses autentikasi pengguna. */
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'username' => 'required',
-            'password' => 'required',
+        $validated = $request->validate([
+            'status' => ['nullable', 'in:Menunggu Persetujuan,Dipinjam,Terlambat,Dikembalikan,Ditolak'],
+            'tanggal_mulai' => ['nullable', 'date_format:Y-m-d'],
+            'tanggal_selesai' => ['nullable', 'date_format:Y-m-d'],
         ]);
 
-        if (Auth::attempt(['username' => $credentials['username'], 'password' => $credentials['password']])) {
-            $request->session()->regenerate();
-
-            // Rekam keberhasilan masuk sebelum membuka dashboard petugas.
-            if (Auth::check()) {
-                LogAktivitas::create([
-                    'user_id' => Auth::id(),
-                    'aktivitas' => 'Login',
-                    'deskripsi' => 'User ' . Auth::user()->username . ' telah login',
-                ]);
-            }
-
-            // Arahkan petugas ke dashboard operasionalnya.
-            $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect()->intended('/admin/dashboard')->with('success', 'Selamat datang, Admin!');
-            } elseif ($user->role === 'petugas') {
-                return redirect()->intended('/petugas/dashboard')->with('success', 'Selamat datang, Petugas!');
-            } else {
-                return redirect()->intended('/peminjam/dashboard')->with('success', 'Selamat datang, Peminjam!');
-            }
-        }
-
-        return back()->withErrors([
-            'username' => 'Username atau password salah.',
-        ])->onlyInput('username');
-    }
-
-    /** Mengakhiri sesi pengguna. */
-    public function logout(Request $request)
-    {
-        if (Auth::check()) {
-            LogAktivitas::create([
-                'user_id' => Auth::id(),
-                'aktivitas' => 'Logout',
-                'deskripsi' => 'User ' . Auth::user()->username . ' telah logout',
+        if (
+            ! empty($validated['tanggal_mulai'])
+            && ! empty($validated['tanggal_selesai'])
+            && $validated['tanggal_mulai'] > $validated['tanggal_selesai']
+        ) {
+            throw ValidationException::withMessages([
+                'tanggal_selesai' => 'Tanggal akhir harus sama atau setelah tanggal mulai.',
             ]);
         }
 
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $status = $validated['status'] ?? null;
+        $tanggalMulai = $validated['tanggal_mulai'] ?? null;
+        $tanggalSelesai = $validated['tanggal_selesai'] ?? null;
+        $filterStatus = fn ($query) => $query->when($status, fn ($query, $status) => $query->where('status', $status));
+        $filterPeminjaman = function ($query) use ($filterStatus, $tanggalMulai, $tanggalSelesai) {
+            $filterStatus($query);
+            $query
+                ->when($tanggalMulai, fn ($query, $tanggal) => $query->whereDate('tanggal_pinjam', '>=', $tanggal))
+                ->when($tanggalSelesai, fn ($query, $tanggal) => $query->whereDate('tanggal_pinjam', '<=', $tanggal));
+        };
 
-        return redirect('/login')->with('success', 'Anda telah berhasil logout.');
+        $peminjaman = Peminjaman::with(['user', 'petugas', 'detailPeminjaman.alat', 'pengembalian'])
+            ->where($filterPeminjaman)
+            ->orderByDesc('tanggal_pinjam')
+            ->orderByDesc('id')
+            ->get();
+        $pengembalian = Pengembalian::with([
+            'petugas',
+            'peminjaman.user',
+            'peminjaman.petugas',
+            'peminjaman.detailPeminjaman.alat',
+        ])
+            ->whereHas('peminjaman', $filterStatus)
+            ->when($tanggalMulai, fn ($query, $tanggal) => $query->whereDate('tanggal_dikembalikan', '>=', $tanggal))
+            ->when($tanggalSelesai, fn ($query, $tanggal) => $query->whereDate('tanggal_dikembalikan', '<=', $tanggal))
+            ->orderByDesc('tanggal_dikembalikan')
+            ->orderByDesc('id')
+            ->get();
+
+        return view('petugas.laporan.pengembalian', compact(
+            'peminjaman',
+            'pengembalian',
+            'status',
+            'tanggalMulai',
+            'tanggalSelesai',
+        ));
     }
 }

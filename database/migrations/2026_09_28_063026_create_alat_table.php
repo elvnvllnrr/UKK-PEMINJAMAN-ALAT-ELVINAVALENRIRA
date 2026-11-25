@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('alat', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_id')->constrained('kategori')->onDelete('cascade');
+            $table->foreignId('kategori_id')->constrained('kategori')->restrictOnDelete();
             $table->string('nama_alat');
             $table->string('kode_alat')->unique();
             $table->text('deskripsi')->nullable();

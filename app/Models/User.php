@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /** Menyimpan akun, role, dan relasi peminjaman pengguna. */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -36,6 +37,18 @@ class User extends Authenticatable
     public function peminjaman()
     {
         return $this->hasMany(Peminjaman::class, 'user_id');
+    }
+
+    /** Mengambil peminjaman yang disetujui oleh petugas ini. */
+    public function peminjamanDisetujui()
+    {
+        return $this->hasMany(Peminjaman::class, 'petugas_id');
+    }
+
+    /** Mengambil pengembalian yang diproses oleh petugas ini. */
+    public function pengembalianDiproses()
+    {
+        return $this->hasMany(Pengembalian::class, 'petugas_id');
     }
     /** Memeriksa apakah role pengguna adalah admin. */
     public function isAdmin()

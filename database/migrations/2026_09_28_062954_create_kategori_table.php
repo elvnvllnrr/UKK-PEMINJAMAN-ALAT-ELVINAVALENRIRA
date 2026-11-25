@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /** Migrasi anonim yang menerapkan perubahan skema database dan pembatalannya. */
 return new class extends Migration
 {
-    /** Membuat tabel kategori beserta kolom utama yang digunakan aplikasi. */
+    /** Membuat tabel kategori alat. */
     public function up(): void
     {
         Schema::create('kategori', function (Blueprint $table) {

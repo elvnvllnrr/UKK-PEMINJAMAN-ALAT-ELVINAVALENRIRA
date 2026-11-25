@@ -22,7 +22,7 @@ class PengembalianController extends Controller
             ->update(['status' => 'Terlambat']);
 
         $pengembalian = Pengembalian::with(['peminjaman.user'])
-            ->orderBy('tanggal_kembali', 'desc')
+            ->orderBy('tanggal_dikembalikan', 'desc')
             ->paginate(10);
         $pengembalianMenunggu = Peminjaman::with(['user', 'detailPeminjaman.alat'])
             ->whereIn('status', ['Dipinjam', 'Terlambat'])
@@ -172,7 +172,8 @@ class PengembalianController extends Controller
 
             Pengembalian::create([
                 'peminjaman_id' => $peminjaman->id,
-                'tanggal_kembali' => $tanggalKembali,
+                'petugas_id' => auth()->id(),
+                'tanggal_dikembalikan' => $tanggalKembali,
                 'status' => $statusPengembalian,
                 'denda' => $totalDenda,
                 'denda_kerusakan' => $dendaKerusakan,
@@ -182,13 +183,14 @@ class PengembalianController extends Controller
             if ($statusAktif) {
                 $peminjaman->update(['status' => 'Dikembalikan']);
             }
+
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Proses Pengembalian',
+                'deskripsi' => 'Memproses pengembalian untuk peminjaman ID: '.$peminjaman->id,
+            ]);
         });
 
-        LogAktivitas::create([
-            'user_id' => auth()->id(),
-            'aktivitas' => 'Create Pengembalian',
-            'deskripsi' => 'Membuat pengembalian untuk peminjaman ID: '.$validated['peminjaman_id'],
-        ]);
         $route = auth()->user()->role === 'petugas' ? 'petugas.pengembalian.index' : 'admin.pengembalian.index';
 
         return redirect()->route($route)->with('success', 'Pengembalian berhasil dicatat.');
@@ -266,7 +268,7 @@ class PengembalianController extends Controller
         : 'Tepat Waktu'));
 
         $pengembalian->update([
-            'tanggal_kembali' => $validated['tanggal_kembali'],
+            'tanggal_dikembalikan' => $validated['tanggal_kembali'],
             'status' => $statusPengembalian,
             'denda' => $totalDenda,
             'denda_kerusakan' => $dendaKerusakan,

@@ -18,7 +18,7 @@ class PengembalianController extends Controller
     public function index()
     {
         $pengembalian = Pengembalian::with(['peminjaman.user'])
-            ->orderBy('tanggal_kembali', 'desc')
+            ->orderBy('tanggal_dikembalikan', 'desc')
             ->paginate(10);
         return view('admin.pengembalian.index', compact('pengembalian'));
     }
@@ -47,7 +47,7 @@ class PengembalianController extends Controller
 
             $pengembalian = Pengembalian::create([
                 'peminjaman_id' => $validated['peminjaman_id'],
-                'tanggal_kembali' => $validated['tanggal_kembali'],
+                'tanggal_dikembalikan' => $validated['tanggal_kembali'],
                 'status' => $validated['status'],
                 'denda' => $validated['denda'] ?? 0,
                 'catatan' => $validated['catatan'],
@@ -104,6 +104,8 @@ class PengembalianController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
+        $validated['tanggal_dikembalikan'] = $validated['tanggal_kembali'];
+        unset($validated['tanggal_kembali']);
         $pengembalian->update($validated);
 
         LogAktivitas::create([

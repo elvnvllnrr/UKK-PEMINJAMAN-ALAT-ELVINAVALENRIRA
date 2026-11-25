@@ -260,6 +260,9 @@
                         <a class="nav-link {{ request()->routeIs('admin.pengembalian*') ? 'active' : '' }}" href="{{ route('admin.pengembalian.index') }}">
                             <i class="fas fa-undo"></i> Pengembalian
                         </a>
+                        <a class="nav-link {{ request()->routeIs('admin.log-aktivitas*') ? 'active' : '' }}" href="{{ route('admin.log-aktivitas.index') }}">
+                            <i class="fas fa-clock"></i> Log Aktivitas
+                        </a>
 
 {{-- Tangani cabang alternatif jika kondisi (auth()->user()->role === 'petugas') terpenuhi. --}}
                     @elseif(auth()->user()->role === 'petugas')
@@ -274,6 +277,9 @@
                         </a>
                         <a class="nav-link {{ request()->routeIs('petugas.pengembalian*') ? 'active' : '' }}" href="{{ route('petugas.pengembalian.index') }}">
                             <i class="fas fa-undo"></i> Pengembalian
+                        </a>
+                        <a class="nav-link {{ request()->routeIs('petugas.laporan.pengembalian') ? 'active' : '' }}" href="{{ route('petugas.laporan.pengembalian') }}">
+                            <i class="fas fa-print"></i> Cetak Laporan
                         </a>
 
 {{-- Tampilkan fallback bila seluruh cabang kondisi sebelumnya tidak terpenuhi. --}}

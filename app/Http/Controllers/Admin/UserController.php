@@ -87,6 +87,14 @@ class UserController extends Controller
     /** Menghapus pengguna beserta catatan aktivitasnya. */
     public function destroy(User $user)
     {
+        if ($user->is(auth()->user())) {
+            return back()->with('error', 'Akun yang sedang digunakan tidak dapat dihapus.');
+        }
+
+        if ($user->peminjaman()->exists()) {
+            return back()->with('error', 'User tidak dapat dihapus karena memiliki riwayat transaksi.');
+        }
+
         LogAktivitas::create([
             'user_id' => auth()->id(),
             'aktivitas' => 'Delete User',

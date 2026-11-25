@@ -14,6 +14,50 @@
     <p class="text-muted mb-0">Mulai dari permohonan dan pengembalian yang menunggu tindakan Anda.</p>
 </div>
 
+<section class="mb-4" aria-labelledby="data-tersimpan-heading">
+    <h2 id="data-tersimpan-heading" class="h5 fw-bold mb-3">Ringkasan data tersimpan</h2>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a href="{{ route('petugas.alat.index') }}" class="text-decoration-none">
+                <div class="stat-card h-100">
+                    <small class="text-muted">Jenis alat</small>
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <span class="h2 fw-bold mb-0 text-dark">{{ $stats['total_alat'] }}</span>
+                        <i class="fas fa-toolbox text-primary fs-3" aria-hidden="true"></i>
+                    </div>
+                    <small class="text-primary">Lihat inventaris <i class="fas fa-arrow-right ms-1"></i></small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('petugas.peminjaman.index') }}" class="text-decoration-none">
+                <div class="stat-card h-100">
+                    <small class="text-muted">Total peminjaman</small>
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <span class="h2 fw-bold mb-0 text-dark">{{ $stats['total_peminjaman'] }}</span>
+                        <i class="fas fa-clipboard-list text-primary fs-3" aria-hidden="true"></i>
+                    </div>
+                    <small class="text-primary">Lihat riwayat <i class="fas fa-arrow-right ms-1"></i></small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ route('petugas.pengembalian.index') }}" class="text-decoration-none">
+                <div class="stat-card h-100">
+                    <small class="text-muted">Total pengembalian</small>
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <span class="h2 fw-bold mb-0 text-dark">{{ $stats['total_pengembalian'] }}</span>
+                        <i class="fas fa-undo text-primary fs-3" aria-hidden="true"></i>
+                    </div>
+                    <small class="text-primary">Lihat riwayat <i class="fas fa-arrow-right ms-1"></i></small>
+                </div>
+            </a>
+        </div>
+    </div>
+    <p class="text-muted small mt-2 mb-0">Angka tugas di bawah hanya menghitung transaksi yang masih menunggu tindakan atau belum selesai.</p>
+</section>
+
+<h2 class="h5 fw-bold mb-3">Pekerjaan yang perlu ditindaklanjuti</h2>
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <a href="{{ route('petugas.peminjaman.index', ['status' => 'Menunggu Persetujuan']) }}" class="text-decoration-none">
