@@ -49,7 +49,7 @@ class UserController extends Controller
             'deskripsi' => 'Membuat user baru: ' . $user->username,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
     }
 
     /** Menampilkan formulir perubahan pengguna. */
@@ -81,12 +81,16 @@ class UserController extends Controller
             'deskripsi' => 'Mengupdate user: ' . $user->username,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User berhasil diupdate!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate!');
     }
 
     /** Menghapus pengguna beserta catatan aktivitasnya. */
     public function destroy(User $user)
     {
+        if ($user->role === 'admin') {
+            return back()->with('error', 'Akun dengan role admin tidak dapat dihapus.');
+        }
+
         if ($user->is(auth()->user())) {
             return back()->with('error', 'Akun yang sedang digunakan tidak dapat dihapus.');
         }
@@ -102,6 +106,6 @@ class UserController extends Controller
         ]);
 
         $user->delete();
-        return redirect()->route('users.index')->with('success', 'User berhasil dihapus!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus!');
     }
 }
